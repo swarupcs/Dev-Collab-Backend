@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
+import { User } from '../models/user.js';
 
 
 /**
  * Middleware to authenticate user using JWT token stored in cookies
  */
-export const userAuth = async (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   try {
     const token = req.cookies?.token;
 

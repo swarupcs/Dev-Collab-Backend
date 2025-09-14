@@ -1,4 +1,5 @@
 import { User } from '../models/user.js';
+import { ApiError } from '../utils.js/api-error.js';
 import { ApiResponse } from '../utils.js/api-response.js';
 import { asyncHandler } from '../utils.js/async-handler.js';
 import { clearAuthCookie, setAuthCookie } from '../utils.js/cookies.js';
@@ -54,6 +55,8 @@ export const signin = asyncHandler(async (req, res) => {
   if (!user) {
     throw new Error('Invalid credentials');
   }
+
+
   const isPasswordValid = await user.validatePassword(password);
 
   if (!isPasswordValid) {
@@ -87,4 +90,15 @@ export const signin = asyncHandler(async (req, res) => {
 export const signout = asyncHandler(async (req, res) => {
   clearAuthCookie(res);
   return new ApiResponse(200, null, 'Signout successful').send(res);
+});
+
+export const getUserDetails = asyncHandler(async (req, res) => {
+  const user = req.user;
+  console.log("user:", user);
+
+  if(!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  return new ApiResponse(200, { user }, 'User details fetched successfully').send(res);
 });
