@@ -1,7 +1,7 @@
 import { User } from '../models/user.js';
 import { ApiResponse } from '../utils.js/api-response.js';
 import { asyncHandler } from '../utils.js/async-handler.js';
-import { setAuthCookie } from '../utils.js/cookies.js';
+import { clearAuthCookie, setAuthCookie } from '../utils.js/cookies.js';
 import { validateSignUpData } from '../utils.js/validation.js';
 import bcrypt from 'bcryptjs';
 
@@ -81,4 +81,10 @@ export const signin = asyncHandler(async (req, res) => {
     },
     'Signin successful'
   ).send(res);
+});
+
+
+export const signout = asyncHandler(async (req, res) => {
+  clearAuthCookie(res);
+  return new ApiResponse(200, null, 'Signout successful').send(res);
 });

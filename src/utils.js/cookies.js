@@ -6,5 +6,8 @@ export const setAuthCookie = (res, token) => {
 };
 
 export const clearAuthCookie = (res) => {
-    res.clearCookie('token');
+    res.cookie('token', null, {
+      httpOnly: true,
+      maxAge: 0,
+    });
 }
