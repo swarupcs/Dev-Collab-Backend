@@ -43,5 +43,42 @@ export const signup = asyncHandler(async (req, res) => {
       updatedAt: savedUser.updatedAt,
       skills: savedUser.skills,
     },
-  }).send(res);
+  }, "Signup successful").send(res);
+});
+
+export const signin = asyncHandler(async (req, res) => {
+  const { emailId, password } = req.body;
+
+  const user = await User.findOne({ emailId: emailId });
+
+  if (!user) {
+    throw new Error('Invalid credentials');
+  }
+  const isPasswordValid = await user.validatePassword(password);
+
+  if (!isPasswordValid) {
+    throw new ApiError(401, 'Invalid credentials');
+  }
+
+  const token = await user.getJWT();
+
+  setAuthCookie(res, token);
+
+  return new ApiResponse(
+    200,
+    {
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailId: user.emailId,
+        photoUrl: user.photoUrl,
+        about: user.about,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        skills: user.skills,
+      },
+    },
+    'Signin successful'
+  ).send(res);
 });
