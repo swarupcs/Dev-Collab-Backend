@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 
 import connectDB from './config/db.js';
 import apiRouter from './routes/apiRoutes.js';
+import { globalErrorHandler } from './middlewares/error.middleware.js';
 
 
 dotenv.config(); // Load env variables
@@ -23,6 +24,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', apiRouter);
+
+app.use(globalErrorHandler);
 
 // Start server
 const PORT = process.env.PORT || 8080;
