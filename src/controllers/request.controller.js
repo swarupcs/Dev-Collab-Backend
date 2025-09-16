@@ -4,6 +4,16 @@ import { ApiError } from '../utils.js/api-error.js';
 import { ApiResponse } from '../utils.js/api-response.js';
 import { asyncHandler } from '../utils.js/async-handler.js';
 
+/**
+ * 1. Send Connection Request
+ * 2. Review Connection Request (Accept/Reject/Ignore)
+ * 3. List Connection Requests (Sent/Received)
+ * 4. List Connections
+ * 
+ * 
+ */
+
+
 export const sendRequest = asyncHandler(async (req, res) => {
   const fromUserId = req.user._id;
   const toUserId = req.params.toUserId;
