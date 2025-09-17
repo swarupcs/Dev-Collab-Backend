@@ -90,18 +90,18 @@ export const sendRequest = asyncHandler(async (req, res) => {
     createdAt: new Date(),
   });
 
- const data = await connectionRequest.save().then((reqDoc) =>
-   reqDoc.populate([
-     {
-       path: 'fromUserId',
-       select: 'firstName lastName emailId photoUrl skills bio',
-     },
-     {
-       path: 'toUserId',
-       select: 'firstName lastName emailId photoUrl skills bio',
-     },
-   ])
- );
+  const data = await connectionRequest.save().then((reqDoc) =>
+    reqDoc.populate([
+      {
+        path: 'fromUserId',
+        select: 'firstName lastName emailId photoUrl skills bio',
+      },
+      {
+        path: 'toUserId',
+        select: 'firstName lastName emailId photoUrl skills bio',
+      },
+    ])
+  );
 
   return new ApiResponse(
     201,
@@ -114,6 +114,11 @@ export const reviewRequest = asyncHandler(async (req, res) => {
   const loggedInUser = req.user;
   const { status, requestId } = req.params;
 
+  // Input validation
+  if (!mongoose.Types.ObjectId.isValid(requestId)) {
+    throw new ApiError(400, 'Invalid request ID format.');
+  }
+
   const allowedStatus = ['accepted', 'rejected'];
 
   if (!allowedStatus.includes(status)) {
@@ -124,18 +129,35 @@ export const reviewRequest = asyncHandler(async (req, res) => {
     _id: requestId,
     toUserId: loggedInUser._id,
     status: 'interested',
-  });
+  }).populate([
+    {
+      path: 'fromUserId',
+      select: 'firstName lastName emailId photoUrl skills bio',
+    },
+    {
+      path: 'toUserId',
+      select: 'firstName lastName emailId photoUrl skills bio',
+    },
+  ]);
 
   if (!connectionRequest) {
     throw new ApiError(404, 'No pending connection request found.');
   }
   connectionRequest.status = status;
+  connectionRequest.reviewedAt = new Date();
 
   const data = await connectionRequest.save();
 
-  return new ApiResponse(
-    200,
-    data,
-    'Connection request reviewed successfully.'
-  ).send(res);
+  // Optional: Create notification or send email for acceptance
+  if (status === 'accepted') {
+    // Add notification logic here
+    // await createNotification(connectionRequest.fromUserId, 'CONNECTION_ACCEPTED', ...);
+  }
+
+  const message =
+    status === 'accepted'
+      ? `Connection request accepted! You are now connected with ${connectionRequest.fromUserId.firstName}.`
+      : 'Connection request rejected.';
+
+  return new ApiResponse(200, data, message).send(res);
 });
