@@ -161,3 +161,41 @@ export const reviewRequest = asyncHandler(async (req, res) => {
 
   return new ApiResponse(200, data, message).send(res);
 });
+
+export const getSentRequests = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const [requests, totalCount] = await Promise.all([
+    ConnectionRequest.find({
+      fromUserId: userId,
+      status: { $in: ['interested', 'accepted', 'rejected'] },
+    })
+      .populate('toUserId', 'firstName lastName emailId photoUrl skills bio')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    ConnectionRequest.countDocuments({
+      fromUserId: userId,
+      status: { $in: ['interested', 'accepted', 'rejected'] },
+    }),
+  ]);
+
+    return new ApiResponse(
+      200,
+      {
+        requests,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(totalCount / limit),
+          totalRequests: totalCount,
+          hasNextPage: page < Math.ceil(totalCount / limit),
+          hasPrevPage: page > 1,
+        },
+      },
+      'Sent requests fetched successfully.'
+    ).send(res);
+});
