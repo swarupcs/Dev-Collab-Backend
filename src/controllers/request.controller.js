@@ -9,10 +9,9 @@ import { asyncHandler } from '../utils.js/async-handler.js';
  * 2. Review Connection Request (Accept/Reject/Ignore)
  * 3. List Connection Requests (Sent/Received)
  * 4. List Connections
- * 
- * 
+ *
+ *
  */
-
 
 export const sendRequest = asyncHandler(async (req, res) => {
   const fromUserId = req.user._id;
@@ -68,5 +67,35 @@ export const sendRequest = asyncHandler(async (req, res) => {
     201,
     data,
     'Connection request sent successfully.'
+  ).send(res);
+});
+
+export const reviewRequest = asyncHandler(async (req, res) => {
+  const loggedInUser = req.user;
+  const { status, requestId } = req.params;
+
+  const allowedStatus = ['accepted', 'rejected'];
+
+  if (!allowedStatus.includes(status)) {
+    throw new ApiError(400, `Invalid status ${status}`);
+  }
+
+  const connectionRequest = await ConnectionRequest.findOne({
+    _id: requestId,
+    toUserId: loggedInUser._id,
+    status: 'interested',
+  });
+
+  if (!connectionRequest) {
+    throw new ApiError(404, 'No pending connection request found.');
+  }
+  connectionRequest.status = status;
+
+  const data = await connectionRequest.save();
+
+  return new ApiResponse(
+    200,
+    data,
+    'Connection request reviewed successfully.'
   ).send(res);
 });
