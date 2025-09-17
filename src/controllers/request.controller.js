@@ -22,6 +22,15 @@ export const sendRequest = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Invalid request. Required fields are missing.');
   }
 
+  if (!mongoose.Types.ObjectId.isValid(toUserId)) {
+    throw new ApiError(400, 'Invalid user ID format.');
+  }
+
+  // Prevent self-requests
+  if (fromUserId.toString() === toUserId) {
+    throw new ApiError(400, 'Cannot send connection request to yourself.');
+  }
+
   const allowedStatus = ['ignored', 'interested'];
 
   if (!allowedStatus.includes(status)) {
@@ -43,30 +52,61 @@ export const sendRequest = asyncHandler(async (req, res) => {
     ],
   });
 
+  // Parallel database queries for better performance
+  // const [toUser, existingConnectionRequest] = await Promise.all([
+  //   User.findById(toUserId).select('_id firstName lastName'),
+  //   ConnectionRequest.findOne({
+  //     $or: [
+  //       { fromUserId, toUserId },
+  //       { fromUserId: toUserId, toUserId: fromUserId },
+  //     ],
+  //   }),
+  // ]);
+
+  // if (existingConnectionRequest) {
+  //   throw new ApiError(
+  //     400,
+  //     'You have already sent a connection request to this user.'
+  //   );
+  // }
+
+  // Enhanced existing request handling
   if (existingConnectionRequest) {
-    throw new ApiError(
-      400,
-      'You have already sent a connection request to this user.'
-    );
+    let message = 'Connection request already exists with this user.';
+    if (existingConnectionRequest.status === 'accepted') {
+      message = 'You are already connected with this user.';
+    } else if (existingConnectionRequest.status === 'interested') {
+      message = 'You have already sent a connection request to this user.';
+    } else if (existingConnectionRequest.status === 'rejected') {
+      message = 'This connection request was previously rejected.';
+    }
+    throw new ApiError(400, message);
   }
 
   const connectionRequest = new ConnectionRequest({
     fromUserId,
     toUserId,
     status,
+    createdAt: new Date(),
   });
 
-  const data = await connectionRequest.save().then((reqDoc) =>
-    reqDoc.populate([
-      { path: 'fromUserId', select: 'firstName lastName emailId photoUrl' },
-      { path: 'toUserId', select: 'firstName lastName emailId photoUrl' },
-    ])
-  );
+ const data = await connectionRequest.save().then((reqDoc) =>
+   reqDoc.populate([
+     {
+       path: 'fromUserId',
+       select: 'firstName lastName emailId photoUrl skills bio',
+     },
+     {
+       path: 'toUserId',
+       select: 'firstName lastName emailId photoUrl skills bio',
+     },
+   ])
+ );
 
   return new ApiResponse(
     201,
     data,
-    'Connection request sent successfully.'
+    `Connection request sent successfully to ${toUser.firstName}.`
   ).send(res);
 });
 
