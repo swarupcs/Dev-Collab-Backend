@@ -390,3 +390,14 @@ export const getAllConnectionActivity = asyncHandler(async (req, res) => {
     'Connection activities fetched successfully.'
   ).send(res);
 });
+
+
+// CANCEL SENT REQUEST
+
+// GET CONNECTION SUGGESTIONS - Helpful for discovery
+
+// GET MUTUAL CONNECTIONS - See common connections
+
+// GET CONNECTION STATS - Analytics for user
+
+// BLOCK/UNBLOCK USER - Important for user safety

@@ -9,11 +9,9 @@ requestRouter.use(authMiddleware);
 
 requestRouter.post('/sendRequest/:status/:toUserId', sendRequest );
 requestRouter.post('/reviewRequest/:status/:requestId', reviewRequest );
-requestRouter.post('/reviewRequest/:status/:requestId', reviewRequest );
 // ?page=1&limit=2
 requestRouter.get('/getSendRequests', getSentRequests);
 requestRouter.get('/getPendingRequests', getPendingRequests);
-requestRouter.get('/getConnectionsRequests', getConnections);
 requestRouter.get('/getConnectionsRequests', getConnections);
 requestRouter.get('/getAllConnectionActivity', getAllConnectionActivity);
 
