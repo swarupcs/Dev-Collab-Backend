@@ -239,3 +239,57 @@ export const getPendingRequests = asyncHandler(async (req, res) => {
     'Pending requests fetched successfully.'
   ).send(res);
 });
+
+// Get connections (accepted requests)
+export const getConnections = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const [connections, totalCount] = await Promise.all([
+    ConnectionRequest.find({
+      $or: [
+        { fromUserId: userId, status: 'accepted' },
+        { toUserId: userId, status: 'accepted' }
+      ]
+    })
+      .populate('fromUserId', 'firstName lastName emailId photoUrl skills bio')
+      .populate('toUserId', 'firstName lastName emailId photoUrl skills bio')
+      .sort({ reviewedAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    
+    ConnectionRequest.countDocuments({
+      $or: [
+        { fromUserId: userId, status: 'accepted' },
+        { toUserId: userId, status: 'accepted' }
+      ]
+    })
+  ]);
+
+  // Transform data to show the connected user (not the current user)
+  const transformedConnections = connections.map(conn => {
+    const connectedUser = conn.fromUserId._id.toString() === userId.toString() 
+      ? conn.toUserId 
+      : conn.fromUserId;
+    
+    return {
+      _id: conn._id,
+      connectedUser,
+      connectedAt: conn.reviewedAt,
+      createdAt: conn.createdAt
+    };
+  });
+
+  return new ApiResponse(200, {
+    connections: transformedConnections,
+    pagination: {
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / limit),
+      totalConnections: totalCount,
+      hasNextPage: page < Math.ceil(totalCount / limit),
+      hasPrevPage: page > 1
+    }
+  }, 'Connections fetched successfully.').send(res);
+});
