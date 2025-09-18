@@ -1,6 +1,6 @@
 import express from 'express';
 import { authMiddleware } from '../../middlewares/auth.middleware.js';
-import { getConnections, getPendingRequests, getSentRequests, reviewRequest, sendRequest } from '../../controllers/request.controller.js';
+import { getAllConnectionActivity, getConnections, getPendingRequests, getSentRequests, reviewRequest, sendRequest } from '../../controllers/request.controller.js';
 
 
 const requestRouter = express.Router();
@@ -14,6 +14,8 @@ requestRouter.post('/reviewRequest/:status/:requestId', reviewRequest );
 requestRouter.get('/getSendRequests', getSentRequests);
 requestRouter.get('/getPendingRequests', getPendingRequests);
 requestRouter.get('/getConnectionsRequests', getConnections);
+requestRouter.get('/getConnectionsRequests', getConnections);
+requestRouter.get('/getAllConnectionActivity', getAllConnectionActivity);
 
 
 

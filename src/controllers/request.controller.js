@@ -185,20 +185,20 @@ export const getSentRequests = asyncHandler(async (req, res) => {
     }),
   ]);
 
-    return new ApiResponse(
-      200,
-      {
-        requests,
-        pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(totalCount / limit),
-          totalRequests: totalCount,
-          hasNextPage: page < Math.ceil(totalCount / limit),
-          hasPrevPage: page > 1,
-        },
+  return new ApiResponse(
+    200,
+    {
+      requests,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalRequests: totalCount,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPrevPage: page > 1,
       },
-      'Sent requests fetched successfully.'
-    ).send(res);
+    },
+    'Sent requests fetched successfully.'
+  ).send(res);
 });
 
 // Get pending requests
@@ -251,45 +251,142 @@ export const getConnections = asyncHandler(async (req, res) => {
     ConnectionRequest.find({
       $or: [
         { fromUserId: userId, status: 'accepted' },
-        { toUserId: userId, status: 'accepted' }
-      ]
+        { toUserId: userId, status: 'accepted' },
+      ],
     })
       .populate('fromUserId', 'firstName lastName emailId photoUrl skills bio')
       .populate('toUserId', 'firstName lastName emailId photoUrl skills bio')
       .sort({ reviewedAt: -1 })
       .skip(skip)
       .limit(limit),
-    
+
     ConnectionRequest.countDocuments({
       $or: [
         { fromUserId: userId, status: 'accepted' },
-        { toUserId: userId, status: 'accepted' }
-      ]
-    })
+        { toUserId: userId, status: 'accepted' },
+      ],
+    }),
   ]);
 
   // Transform data to show the connected user (not the current user)
-  const transformedConnections = connections.map(conn => {
-    const connectedUser = conn.fromUserId._id.toString() === userId.toString() 
-      ? conn.toUserId 
-      : conn.fromUserId;
-    
+  const transformedConnections = connections.map((conn) => {
+    const connectedUser =
+      conn.fromUserId._id.toString() === userId.toString()
+        ? conn.toUserId
+        : conn.fromUserId;
+
     return {
       _id: conn._id,
       connectedUser,
       connectedAt: conn.reviewedAt,
-      createdAt: conn.createdAt
+      createdAt: conn.createdAt,
     };
   });
 
-  return new ApiResponse(200, {
-    connections: transformedConnections,
-    pagination: {
-      currentPage: page,
-      totalPages: Math.ceil(totalCount / limit),
-      totalConnections: totalCount,
-      hasNextPage: page < Math.ceil(totalCount / limit),
-      hasPrevPage: page > 1
-    }
-  }, 'Connections fetched successfully.').send(res);
+  return new ApiResponse(
+    200,
+    {
+      connections: transformedConnections,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalConnections: totalCount,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPrevPage: page > 1,
+      },
+    },
+    'Connections fetched successfully.'
+  ).send(res);
+});
+
+export const getAllConnectionActivity = asyncHandler(async (req, res) => {
+  // To be implemented: Fetch activities from all connections
+  const userId = req.user._id;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const status = req?.query?.status; // Optional filter: 'pending', 'accepted', 'rejected', 'ignored'
+  const type = req?.query?.type; // Optional filter: 'sent', 'received'
+
+  // Build query based on filters
+  const query = {
+    $or: [{ fromUserId: userId }, { toUserId: userId }],
+  };
+
+  if (status) {
+    query.status = status;
+  }
+
+  if (type === 'sent') {
+    query = { fromUserId: userId, ...(status && { status }) };
+  } else if (type === 'received') {
+    query = { toUserId: userId, ...(status && { status }) };
+  }
+
+  const [activities, totalCount] = await Promise.all([
+    ConnectionRequest.find(query)
+      .populate('fromUserId', 'firstName lastName emailId photoUrl skills bio')
+      .populate('toUserId', 'firstName lastName emailId photoUrl skills bio')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    ConnectionRequest.countDocuments(query),
+  ]);
+
+  // Transform data to add metadata
+  const transformedActivities = activities.map((activity) => {
+    const isSentByMe = activity.fromUserId._id.toString() === userId.toString();
+    const otherUser = isSentByMe ? activity.toUserId : activity.fromUserId;
+
+    return {
+      _id: activity._id,
+      otherUser,
+      status: activity.status,
+      type: isSentByMe ? 'sent' : 'received',
+      createdAt: activity.createdAt,
+      reviewedAt: activity.reviewedAt,
+      canCancel: isSentByMe && activity.status === 'interested',
+      canRespond: !isSentByMe && activity.status === 'interested',
+    };
+  });
+
+  // Get summary counts
+  const [sentCount, receivedCount, connectedCount, pendingCount] =
+    await Promise.all([
+      ConnectionRequest.countDocuments({ fromUserId: userId }),
+      ConnectionRequest.countDocuments({ toUserId: userId }),
+      ConnectionRequest.countDocuments({
+        $or: [
+          { fromUserId: userId, status: 'accepted' },
+          { toUserId: userId, status: 'accepted' },
+        ],
+      }),
+      ConnectionRequest.countDocuments({
+        toUserId: userId,
+        status: 'interested',
+      }),
+    ]);
+
+  return new ApiResponse(
+    200,
+    {
+      activities: transformedActivities,
+      summary: {
+        totalSent: sentCount,
+        totalReceived: receivedCount,
+        totalConnections: connectedCount,
+        pendingRequests: pendingCount,
+      },
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalActivities: totalCount,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPrevPage: page > 1,
+      },
+    },
+    'Connection activities fetched successfully.'
+  ).send(res);
 });
