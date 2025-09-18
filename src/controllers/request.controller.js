@@ -162,6 +162,7 @@ export const reviewRequest = asyncHandler(async (req, res) => {
   return new ApiResponse(200, data, message).send(res);
 });
 
+// Get sent requests
 export const getSentRequests = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const page = parseInt(req.query.page) || 1;
@@ -198,4 +199,43 @@ export const getSentRequests = asyncHandler(async (req, res) => {
       },
       'Sent requests fetched successfully.'
     ).send(res);
+});
+
+// Get pending requests
+export const getPendingRequests = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const [requests, totalCount] = await Promise.all([
+    ConnectionRequest.find({
+      toUserId: userId,
+      status: 'interested',
+    })
+      .populate('fromUserId', 'firstName lastName emailId photoUrl skills bio')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    ConnectionRequest.countDocuments({
+      toUserId: userId,
+      status: 'interested',
+    }),
+  ]);
+
+  return new ApiResponse(
+    200,
+    {
+      requests,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalRequests: totalCount,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPrevPage: page > 1,
+      },
+    },
+    'Pending requests fetched successfully.'
+  ).send(res);
 });
