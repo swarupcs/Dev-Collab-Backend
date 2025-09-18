@@ -15,3 +15,57 @@
     
 
 
+
+
+
+------
+
+
+🌐 Dev-Collab – Connecting Developers
+
+Dev-Collab is a platform designed to help developers discover, connect, collaborate, and communicate with each other, while also sharing knowledge within a community.
+
+✅ Current Features
+
+Authentication System
+
+Signup, signin, and signout
+
+JWT-based route protection
+
+Cookie-based session management
+
+Structured error handling with reusable utilities
+
+Connection Request System
+
+Send/Review requests (interested, accepted, rejected, ignored)
+
+Fetch sent & pending requests with pagination
+
+Accepted connections with structured data
+
+Full activity tracking (sent, received, pending, accepted) with metadata
+
+Clean async controllers, reusable error/response helpers
+
+Communication
+
+Developers can chat with their connections to collaborate directly.
+
+🎯 Vision
+
+Enable developers to build professional connections
+
+Provide tools for collaboration (projects, discussions, skill-sharing)
+
+Foster a developer community where networking, chatting, and knowledge-sharing are seamless
+
+🔜 Next Steps
+
+Implement notifications (real-time + email)
+
+Collaboration features (project invites, team building, shared workspaces)
+
+Activity feeds & discussion modules
+
