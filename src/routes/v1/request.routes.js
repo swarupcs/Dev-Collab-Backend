@@ -16,6 +16,4 @@ requestRouter.get('/getConnectionsRequests', getConnections);
 requestRouter.get('/getAllConnectionActivity', getAllConnectionActivity);
 
 
-
-
 export default requestRouter;
