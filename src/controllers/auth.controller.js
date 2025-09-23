@@ -12,6 +12,11 @@ export const signup = asyncHandler(async (req, res) => {
 
   const { firstName, lastName, emailId, password } = req.body;
 
+  const existingUser = User.findOne({emailId: emailId});
+  if(existingUser) {
+      throw new ApiError(409, 'User already exists');
+  }
+
   // Encrypt the password
   const passwordHash = await bcrypt.hash(password, 10);
   console.log(passwordHash);
