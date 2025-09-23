@@ -8,7 +8,7 @@ authRouter.get("/test", (req, res) => {
   res.send("✅ Test from auth route");
 });
 
-authRouter.use(authMiddleware);
+// authRouter.use(authMiddleware);
 
 authRouter.post("/signup", signup);
 authRouter.post("/signin", signin);
@@ -16,3 +16,10 @@ authRouter.post("/signout", signout);
 authRouter.post("/getUserDetails", getUserDetails);
 
 export default authRouter;
+
+
+/**
+ * No need of authMiddleware for the above routes, and remove the /getUserDetails routes
+ * 
+ * 
+ */

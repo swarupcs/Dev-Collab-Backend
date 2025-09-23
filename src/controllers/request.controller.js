@@ -301,7 +301,7 @@ export const getAllConnectionActivity = asyncHandler(async (req, res) => {
   const type = req?.query?.type; // Optional filter: 'sent', 'received'
 
   // Build query based on filters
-  const query = {
+  let query = {
     $or: [{ fromUserId: userId }, { toUserId: userId }],
   };
 
