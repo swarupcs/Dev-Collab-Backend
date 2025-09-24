@@ -96,13 +96,3 @@ export const signout = asyncHandler(async (req, res) => {
   return new ApiResponse(200, null, 'Signout successful').send(res);
 });
 
-export const getUserDetails = asyncHandler(async (req, res) => {
-  const user = req.user;
-  console.log("user:", user);
-
-  if(!user) {
-    throw new ApiError(404, 'User not found');
-  }
-
-  return new ApiResponse(200, { user }, 'User details fetched successfully').send(res);
-});

@@ -1,6 +1,6 @@
 import express from 'express';
-import { getUserDetails, signin, signout, signup } from '../../controllers/auth.controller.js';
-import { authMiddleware } from '../../middlewares/auth.middleware.js';
+import { signin, signout, signup } from '../../controllers/auth.controller.js';
+
 
 const authRouter = express.Router();
 
@@ -13,7 +13,6 @@ authRouter.get("/test", (req, res) => {
 authRouter.post("/signup", signup);
 authRouter.post("/signin", signin);
 authRouter.post("/signout", signout);
-authRouter.post("/getUserDetails", getUserDetails);
 
 export default authRouter;
 
