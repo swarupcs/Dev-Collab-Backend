@@ -7,6 +7,7 @@ const requestRouter = express.Router();
 
 requestRouter.use(authMiddleware);
 
+// send request to other connection(interest / ignored)
 requestRouter.post('/sendRequest/:status/:toUserId', sendRequest );
 requestRouter.post('/reviewRequest/:status/:requestId', reviewRequest );
 // ?page=1&limit=2
