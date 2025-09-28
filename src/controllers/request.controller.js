@@ -233,7 +233,7 @@ export const getPendingRequests = asyncHandler(async (req, res) => {
 });
 
 // Get connections (accepted requests)
-export const getConnections = asyncHandler(async (req, res) => {
+export const getMyConnections = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
