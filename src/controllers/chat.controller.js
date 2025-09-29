@@ -12,6 +12,8 @@ import Message from '../models/message.model.js';
 /**
  * Get all user's chats with last message and unread count
  */
+
+// chatRouter.get("/getUserChats", getUserChats);
 export const getUserChats = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
@@ -49,6 +51,8 @@ export const getUserChats = asyncHandler(async (req, res) => {
 /**
  * Create or find existing chat between two users
  */
+
+// chatRouter.post("/createChat", createChat);
 export const createChat = asyncHandler(async (req, res) => {
   const { userId } = req.body; // Other user's ID
   const currentUserId = req.user._id;
@@ -79,6 +83,7 @@ export const createChat = asyncHandler(async (req, res) => {
 /**
  * Get specific chat by ID
  */
+// chatRouter.get("/getChatById/:chatId", getChatById);
 export const getChatById = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
   const userId = req.user._id;
@@ -111,6 +116,8 @@ export const getChatById = asyncHandler(async (req, res) => {
 /**
  * Delete/Archive a chat
  */
+
+// chatRouter.delete("/deleteChat/:chatId", deleteChat);
 export const deleteChat = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
   const userId = req.user._id;
@@ -144,6 +151,8 @@ export const deleteChat = asyncHandler(async (req, res) => {
 /**
  * Get messages in a conversation
  */
+
+// chatRouter.get("/getConversationMessages/:userId", getConversationMessages);
 export const getConversationMessages = asyncHandler(async (req, res) => {
   const { userId } = req.params; // Other user's ID
   const currentUserId = req.user._id;
@@ -209,6 +218,8 @@ export const getConversationMessages = asyncHandler(async (req, res) => {
 /**
  * Send a message (REST endpoint, real-time handled by Socket.IO)
  */
+
+// chatRouter.post("/sendMessage", sendMessage);
 export const sendMessage = asyncHandler(async (req, res) => {
   const { receiverId, text, messageType = 'text' } = req.body;
   const senderId = req.user._id;
@@ -268,6 +279,8 @@ export const sendMessage = asyncHandler(async (req, res) => {
 /**
  * Get unread message count
  */
+
+// chatRouter.get("/getUnreadCount", getUnreadCount);
 export const getUnreadCount = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
@@ -287,6 +300,8 @@ export const getUnreadCount = asyncHandler(async (req, res) => {
 /**
  * Mark messages as read
  */
+
+// chatRouter.put("/markMessagesAsRead", markMessagesAsRead);
 export const markMessagesAsRead = asyncHandler(async (req, res) => {
   const { senderId } = req.body; // ID of user who sent the messages
   const receiverId = req.user._id;
@@ -339,6 +354,8 @@ export const markMessagesAsRead = asyncHandler(async (req, res) => {
 /**
  * Edit a message
  */
+
+// chatRouter.put("/editMessage/:messageId", editMessage);
 export const editMessage = asyncHandler(async (req, res) => {
   const { messageId } = req.params;
   const { text } = req.body;
@@ -393,6 +410,9 @@ export const editMessage = asyncHandler(async (req, res) => {
 /**
  * Delete a message (soft delete)
  */
+
+// chatRouter.delete("/deleteMessage/:messageId", deleteMessage);
+
 export const deleteMessage = asyncHandler(async (req, res) => {
   const { messageId } = req.params;
   const userId = req.user._id;
@@ -437,6 +457,8 @@ export const deleteMessage = asyncHandler(async (req, res) => {
 /**
  * Search messages in conversation
  */
+
+// chatRouter.get("/searchMessages/:userId", searchMessages);
 export const searchMessages = asyncHandler(async (req, res) => {
   const { userId } = req.params; // Other user's ID
   const { query, page = 1, limit = 20 } = req.query;
