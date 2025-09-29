@@ -62,7 +62,7 @@ export const signin = asyncHandler(async (req, res) => {
   const user = await User.findOne({ emailId: emailId });
 
   if (!user) {
-    throw new Error('Invalid credentials');
+    throw new ApiError(404, 'User not found');
   }
 
 
