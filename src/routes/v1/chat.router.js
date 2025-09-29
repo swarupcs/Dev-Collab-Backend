@@ -3,15 +3,11 @@ import { authMiddleware } from '../../middlewares/auth.middleware.js';
 import {
   createChat,
   deleteChat,
-  deleteMessage,
-  editMessage,
   getChatById,
   getConversationMessages,
   getUnreadCount,
   getUserChats,
-  markMessagesAsRead,
   searchMessages,
-  sendMessage,
 } from '../../controllers/chat.controller.js';
 
 const chatRouter = express.Router();
@@ -19,40 +15,61 @@ const chatRouter = express.Router();
 chatRouter.use(authMiddleware);
 
 // ==================== CHAT ROUTES ====================
+// These are for fetching data, not real-time operations
 
-// Get all user's chats
+/**
+ * GET /api/chats/getUserChats
+ * Get all user's chats with last message and unread count
+ */
 chatRouter.get('/getUserChats', getUserChats);
 
-// Create or get chat between two users
+/**
+ * POST /api/chats/createChat
+ * Create or find existing chat between two users
+ * Body: { userId: string }
+ */
 chatRouter.post('/createChat', createChat);
 
-// Get specific chat by ID
+/**
+ * GET /api/chats/getChatById/:chatId
+ * Get specific chat by ID with participants
+ */
 chatRouter.get('/getChatById/:chatId', getChatById);
 
-// Delete/Archive a chat
+/**
+ * DELETE /api/chats/deleteChat/:chatId
+ * Archive/delete a chat
+ */
 chatRouter.delete('/deleteChat/:chatId', deleteChat);
 
-// ==================== MESSAGE ROUTES ====================
+// ==================== MESSAGE ROUTES (READ-ONLY) ====================
+// For fetching historical data - all real-time ops go through Socket.IO
 
-// Get messages in a conversation
+/**
+ * GET /api/chats/getConversationMessages/:userId
+ * Get paginated message history for a conversation
+ * Query params: page, limit
+ */
 chatRouter.get('/getConversationMessages/:userId', getConversationMessages);
 
-// Send a message
-chatRouter.post('/sendMessage', sendMessage);
-
-// Get unread message count
+/**
+ * GET /api/chats/getUnreadCount
+ * Get total unread message count for current user
+ */
 chatRouter.get('/getUnreadCount', getUnreadCount);
-
-// Mark messages as read
-chatRouter.put('/markMessagesAsRead', markMessagesAsRead);
-
-// Edit a message
-chatRouter.put('/editMessage/:messageId', editMessage);
-
-// Delete a message
-chatRouter.delete('/deleteMessage/:messageId', deleteMessage);
-
-// Search messages in conversation
+/**
+ * GET /api/chats/searchMessages/:userId
+ * Search messages in a specific conversation
+ * Query params: query, page, limit
+ */
 chatRouter.get('/searchMessages/:userId', searchMessages);
+
+// ==================== REMOVED ROUTES ====================
+// These operations now happen through Socket.IO only:
+// - POST /sendMessage (use socket.emit('sendMessage'))
+// - PUT /markMessagesAsRead (use socket.emit('markAsRead'))
+// - PUT /editMessage/:messageId (use socket.emit('editMessage'))
+// - DELETE /deleteMessage/:messageId (use socket.emit('deleteMessage'))
+
 
 export default chatRouter;
