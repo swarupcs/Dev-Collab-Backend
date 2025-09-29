@@ -123,9 +123,6 @@ export default Chat;
 
 // ================================================================
 
-// models/index.js - Central export file
-export { default as Chat } from './Chat.js';
-export { default as Message } from './Message.js';
 
 // ================================================================
 
