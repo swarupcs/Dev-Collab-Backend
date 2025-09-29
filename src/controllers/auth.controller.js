@@ -36,19 +36,24 @@ export const signup = asyncHandler(async (req, res) => {
 
   setAuthCookie(res, token);
 
-  return new ApiResponse(201, {
-    user: {
-      _id: savedUser._id,
-      firstName: savedUser.firstName,
-      lastName: savedUser.lastName,
-      emailId: savedUser.emailId,
-      photoUrl: savedUser.photoUrl,
-      about: savedUser.about,
-      createdAt: savedUser.createdAt,
-      updatedAt: savedUser.updatedAt,
-      skills: savedUser.skills,
+  return new ApiResponse(
+    201,
+    {
+      user: {
+        _id: savedUser._id,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        emailId: savedUser.emailId,
+        photoUrl: savedUser.photoUrl,
+        about: savedUser.about,
+        createdAt: savedUser.createdAt,
+        updatedAt: savedUser.updatedAt,
+        skills: savedUser.skills,
+      },
+      accessToken: token,
     },
-  }, "Signup successful").send(res);
+    'Signup successful'
+  ).send(res);
 });
 
 export const signin = asyncHandler(async (req, res) => {
@@ -85,6 +90,7 @@ export const signin = asyncHandler(async (req, res) => {
         updatedAt: user.updatedAt,
         skills: user.skills,
       },
+      accessToken: token,
     },
     'Signin successful'
   ).send(res);
