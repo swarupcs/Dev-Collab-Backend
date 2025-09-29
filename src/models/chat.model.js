@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 const { Schema, model } = mongoose;
 
 const chatSchema = new Schema(
@@ -12,12 +11,25 @@ const chatSchema = new Schema(
           required: true,
         },
       ],
-      validate: {
-        validator: function (participants) {
-          return participants.length === 2;
+      validate: [
+        {
+          validator: function (participants) {
+            return participants.length === 2;
+          },
+          message: 'Chat must have exactly 2 participants',
         },
-        message: 'Chat must have exactly 2 participants',
-      },
+        {
+          validator: function (participants) {
+            // Ensure no duplicate participants (user can't chat with themselves)
+            const uniqueParticipants = new Set(
+              participants.map((p) => p.toString())
+            );
+            return uniqueParticipants.size === participants.length;
+          },
+          message:
+            'Participants must be unique (user cannot chat with themselves)',
+        },
+      ],
     },
     lastMessage: {
       type: Schema.Types.ObjectId,
@@ -44,14 +56,27 @@ const chatSchema = new Schema(
   }
 );
 
-// Unique compound index to prevent duplicate chats
-chatSchema.index({ participants: 1 }, { unique: true });
+// FIXED: Compound index for unique participant combinations
+// This ensures that each pair of users can have only one chat
+chatSchema.index(
+  {
+    'participants.0': 1,
+    'participants.1': 1,
+  },
+  {
+    unique: true,
+    name: 'unique_participants_pair',
+  }
+);
+
+// Index for efficient querying by last activity
 chatSchema.index({ lastActivity: -1 });
+
+// Index for finding chats by participant
+chatSchema.index({ participants: 1 });
 
 // Virtual to get the other participant
 chatSchema.virtual('getOtherParticipant').get(function () {
-  // This would be used in context where current user is known
-  // Usage: chat.getOtherParticipant(currentUserId)
   return (currentUserId) => {
     return this.participants.find(
       (p) => p._id.toString() !== currentUserId.toString()
@@ -61,24 +86,59 @@ chatSchema.virtual('getOtherParticipant').get(function () {
 
 // Pre-save middleware to sort participants for consistent ordering
 chatSchema.pre('save', function (next) {
-  // Sort participants to ensure consistent ordering
+  // Sort participants to ensure consistent ordering for the compound index
   this.participants.sort((a, b) => a.toString().localeCompare(b.toString()));
+  next();
+});
+
+// Pre-validate middleware to ensure participants are sorted before validation
+chatSchema.pre('validate', function (next) {
+  if (this.participants && this.participants.length === 2) {
+    // Sort participants to ensure consistent ordering
+    this.participants.sort((a, b) => a.toString().localeCompare(b.toString()));
+  }
   next();
 });
 
 // Static method to find or create chat between two users
 chatSchema.statics.findOrCreateChat = async function (user1Id, user2Id) {
+  // Ensure we're not trying to create a chat with the same user
+  if (user1Id.toString() === user2Id.toString()) {
+    throw new Error('Cannot create chat with the same user');
+  }
+
+  // Sort participants for consistent ordering
   const participants = [user1Id, user2Id].sort((a, b) =>
     a.toString().localeCompare(b.toString())
   );
 
-  let chat = await this.findOne({ participants });
+  try {
+    // Try to find existing chat first
+    let chat = await this.findOne({
+      participants: { $all: participants },
+    }).populate('participants', 'username avatar email');
 
-  if (!chat) {
-    chat = await this.create({ participants });
+    if (!chat) {
+      // Create new chat if none exists
+      chat = await this.create({ participants });
+      // Populate after creation
+      chat = await chat.populate('participants', 'username avatar email');
+    }
+
+    return chat;
+  } catch (error) {
+    if (error.code === 11000) {
+      // Handle race condition - try to find the chat that was just created
+      const existingChat = await this.findOne({
+        participants: { $all: participants },
+      }).populate('participants', 'username avatar email');
+
+      if (existingChat) {
+        return existingChat;
+      }
+    }
+    throw error;
   }
-
-  return chat.populate('participants', 'username avatar email');
 };
 
 // Static method to get user's active chats
@@ -90,6 +150,19 @@ chatSchema.statics.getUserChats = function (userId) {
     .populate('participants', 'username avatar email lastSeen')
     .populate('lastMessage')
     .sort({ lastActivity: -1 });
+};
+
+// Static method to find specific chat between two users
+chatSchema.statics.findChatBetweenUsers = function (user1Id, user2Id) {
+  const participants = [user1Id, user2Id].sort((a, b) =>
+    a.toString().localeCompare(b.toString())
+  );
+
+  return this.findOne({
+    participants: { $all: participants },
+  })
+    .populate('participants', 'username avatar email')
+    .populate('lastMessage');
 };
 
 // Instance method to update last activity
@@ -116,40 +189,17 @@ chatSchema.methods.toggleBlock = function (userId) {
   return this.save();
 };
 
+// Instance method to check if chat is blocked
+chatSchema.methods.isBlocked = function () {
+  return !!this.blockedBy;
+};
+
+// Instance method to check if chat is blocked by specific user
+chatSchema.methods.isBlockedBy = function (userId) {
+  return this.blockedBy && this.blockedBy.toString() === userId.toString();
+};
+
 const Chat = model('Chat', chatSchema);
 
 export { Chat, chatSchema };
 export default Chat;
-
-// ================================================================
-
-
-// ================================================================
-
-// Usage Examples:
-
-/*
-// Create or find a chat between two users
-const chat = await Chat.findOrCreateChat(user1Id, user2Id);
-
-// Send a message
-const message = new Message({
-  senderId: user1Id,
-  receiverId: user2Id,
-  text: "Hello!"
-});
-await message.save();
-await chat.updateActivity(message._id);
-
-// Get conversation
-const messages = await Message.getConversation(user1Id, user2Id, 20);
-
-// Mark messages as read
-await Message.markAsRead(user2Id, user1Id);
-
-// Get unread count for a user
-const unreadCount = await Message.getUnreadCount(user1Id);
-
-// Get user's active chats
-const userChats = await Chat.getUserChats(user1Id);
-*/
