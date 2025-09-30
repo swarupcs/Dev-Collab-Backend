@@ -1,82 +1,56 @@
-import { authenticateSocket } from "../middlewares/authenticateSocket.midleware.js";
+// socketHandlers.js
 
-const connectedUsers = new Map(); // Store user socket mappings
+import { Chat } from '../models/chat.model.js';
+import { Message } from '../models/message.model.js';
 
-export const setupSocketHandlers = (io) => {
-  // Apply authentication middleware
-  io.use(authenticateSocket);
 
+const onlineUsers = new Map();
+
+export const setupSocket = (io) => {
   io.on('connection', (socket) => {
-    console.log(`👤 User connected: ${socket.user.username} (${socket.id})`);
+    console.log('🔗 Connected:', socket.id);
 
-    // Store user connection
-    connectedUsers.set(socket.userId.toString(), {
-      socketId: socket.id,
-      userId: socket.userId,
-      username: socket.user.username,
-      lastSeen: new Date(),
+    socket.on('register', (userId) => {
+      onlineUsers.set(userId.toString(), socket.id);
     });
 
-    // Join user to their personal room for notifications
-    socket.join(`user_${socket.userId}`);
+    socket.on('send_message', async ({ senderId, receiverId, text }) => {
+      try {
+        // 1. Ensure chat exists
+        const chat = await Chat.findOrCreateChat(senderId, receiverId);
 
-    // Emit user online status
-    socket.broadcast.emit('userOnline', {
-      userId: socket.userId,
-      username: socket.user.username,
-      timestamp: new Date(),
+        // 2. Save message
+        const msg = await Message.create({
+          chatId: chat._id,
+          senderId,
+          receiverId,
+          text,
+        });
+
+        // 3. Update chat
+        await chat.updateActivity(msg._id);
+
+        // 4. Emit to receiver if online
+        const receiverSocket = onlineUsers.get(receiverId.toString());
+        if (receiverSocket) {
+          io.to(receiverSocket).emit('receive_message', msg);
+        }
+
+        // 5. Confirm back to sender
+        socket.emit('message_sent', msg);
+      } catch (err) {
+        console.error('❌ Error sending message:', err.message);
+        socket.emit('error_message', { error: 'Failed to send message' });
+      }
     });
 
-    // Basic chat event handlers (you can expand these later)
-    socket.on('sendMessage', (data) => {
-      console.log('Message received:', data);
-      // Handle message sending logic here
-    });
-
-    socket.on('joinChat', (chatId) => {
-      socket.join(`chat_${chatId}`);
-      console.log(`User ${socket.user.username} joined chat ${chatId}`);
-    });
-
-    socket.on('leaveChat', (chatId) => {
-      socket.leave(`chat_${chatId}`);
-      console.log(`User ${socket.user.username} left chat ${chatId}`);
-    });
-
-    // Handle disconnection
-    socket.on('disconnect', (reason) => {
-      console.log(`👤 User disconnected: ${socket.user.username} (${reason})`);
-
-      // Remove user from connected users
-      connectedUsers.delete(socket.userId.toString());
-
-      // Emit user offline status
-      socket.broadcast.emit('userOffline', {
-        userId: socket.userId,
-        username: socket.user.username,
-        lastSeen: new Date(),
-      });
-    });
-
-    // Handle connection errors
-    socket.on('error', (error) => {
-      console.error('Socket error:', error);
+    socket.on('disconnect', () => {
+      for (const [userId, sId] of onlineUsers.entries()) {
+        if (sId === socket.id) {
+          onlineUsers.delete(userId);
+          break;
+        }
+      }
     });
   });
-
-  // Handle middleware errors
-  io.engine.on('connection_error', (err) => {
-    console.error('Socket.IO connection error:', err.message);
-  });
-};
-
-// Utility functions
-export const getConnectedUsers = () => connectedUsers;
-
-export const isUserOnline = (userId) => {
-  return connectedUsers.has(userId.toString());
-};
-
-export const getUserSocket = (userId) => {
-  return connectedUsers.get(userId.toString())?.socketId;
 };
