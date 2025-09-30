@@ -55,6 +55,13 @@ chatSchema.methods.updateActivity = function (messageId) {
   return this.save();
 };
 
+// Instance method: check if a user is participant
+chatSchema.methods.isParticipant = function (userId) {
+  return this.participants.some(
+    (p) => p.toString() === userId.toString()
+  );
+};
+
 // Static method to find or create chat
 chatSchema.statics.findOrCreateChat = async function (user1Id, user2Id) {
   if (user1Id.toString() === user2Id.toString()) {
