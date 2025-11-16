@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import { ConnectionRequest } from '../models/connectionRequest.model.js';
 import { User } from '../models/user.model.js';
-import { ApiError } from '../utils.js/api-error.js';
-import { ApiResponse } from '../utils.js/api-response.js';
-import { asyncHandler } from '../utils.js/async-handler.js';
+import { ApiError } from '../utils/api-error.js';
+import { ApiResponse } from '../utils/api-response.js';
+import { asyncHandler } from '../utils/async-handler.js';
 
 export const sendRequest = asyncHandler(async (req, res) => {
   const fromUserId = req.user._id;
@@ -383,8 +383,6 @@ export const getAllConnectionActivity = asyncHandler(async (req, res) => {
   ).send(res);
 });
 
-
-
 // CANCEL SENT REQUEST
 
 // GET CONNECTION SUGGESTIONS - Helpful for discovery
@@ -394,7 +392,6 @@ export const getAllConnectionActivity = asyncHandler(async (req, res) => {
 // GET CONNECTION STATS - Analytics for user
 
 // BLOCK/UNBLOCK USER - Important for user safety
-
 
 /**
  * 1. Send Connection Request

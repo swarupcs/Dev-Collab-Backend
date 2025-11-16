@@ -1,4 +1,4 @@
-import { ApiError } from "../utils.js/api-error.js";
+import { ApiError } from "../utils/api-error.js";
 
 
 export const globalErrorHandler = (err, req, res, next) => {

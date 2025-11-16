@@ -1,9 +1,9 @@
 import { User } from '../models/user.model.js';
-import { ApiError } from '../utils.js/api-error.js';
-import { ApiResponse } from '../utils.js/api-response.js';
-import { asyncHandler } from '../utils.js/async-handler.js';
-import { clearAuthCookie, setAuthCookie } from '../utils.js/cookies.js';
-import { validateSignUpData } from '../utils.js/validation.js';
+import { ApiError } from '../utils/api-error.js';
+import { ApiResponse } from '../utils/api-response.js';
+import { asyncHandler } from '../utils/async-handler.js';
+import { clearAuthCookie, setAuthCookie } from '../utils/cookies.js';
+import { validateSignUpData } from '../utils/validation.js';
 import bcrypt from 'bcryptjs';
 
 export const signup = asyncHandler(async (req, res) => {
@@ -12,9 +12,9 @@ export const signup = asyncHandler(async (req, res) => {
 
   const { firstName, lastName, emailId, password } = req.body;
 
-    if (await User.findOne({ emailId })) {
-        throw new ApiError(409, 'Email already exists');
-    }
+  if (await User.findOne({ emailId })) {
+    throw new ApiError(409, 'Email already exists');
+  }
 
   // Encrypt the password
   const passwordHash = await bcrypt.hash(password, 10);
@@ -65,7 +65,6 @@ export const signin = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'User not found');
   }
 
-
   const isPasswordValid = await user.validatePassword(password);
 
   if (!isPasswordValid) {
@@ -96,9 +95,7 @@ export const signin = asyncHandler(async (req, res) => {
   ).send(res);
 });
 
-
 export const signout = asyncHandler(async (req, res) => {
   clearAuthCookie(res);
   return new ApiResponse(200, null, 'Signout successful').send(res);
 });
-

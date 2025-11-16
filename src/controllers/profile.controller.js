@@ -1,7 +1,7 @@
 import { User } from '../models/user.model.js';
-import { ApiError } from '../utils.js/api-error.js';
-import { ApiResponse } from '../utils.js/api-response.js';
-import { asyncHandler } from '../utils.js/async-handler.js';
+import { ApiError } from '../utils/api-error.js';
+import { ApiResponse } from '../utils/api-response.js';
+import { asyncHandler } from '../utils/async-handler.js';
 
 export const getProfile = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
@@ -22,7 +22,7 @@ export const getProfile = asyncHandler(async (req, res) => {
 
 export const editProfile = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
-//   console.log("userId", userId);
+  //   console.log("userId", userId);
 
   if (!req.body || typeof req.body !== 'object') {
     throw new ApiError(400, 'Invalid request body');

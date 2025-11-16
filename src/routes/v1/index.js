@@ -3,7 +3,7 @@ import authRouter from './auth.routes.js';
 import requestRouter from './request.routes.js';
 import profileRouter from './profile.routes.js';
 import userRouter from './user.routes.js';
-import chatRouter from './chat.Router.js';
+import chatRouter from './chat.router.js';
 
 
 const v1Router = express.Router();

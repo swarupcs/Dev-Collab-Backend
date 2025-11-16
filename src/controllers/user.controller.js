@@ -1,13 +1,13 @@
-import { ConnectionRequest } from "../models/connectionRequest.model.js";
-import { User } from "../models/user.model.js";
-import { ApiResponse } from "../utils.js/api-response.js";
+import { ConnectionRequest } from '../models/connectionRequest.model.js';
+import { User } from '../models/user.model.js';
+import { ApiResponse } from '../utils/api-response.js';
 
-import { asyncHandler } from "../utils.js/async-handler.js";
+import { asyncHandler } from '../utils/async-handler.js';
 
 export const getSuggestedRequest = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
 
-  if(!userId)
+  if (!userId)
     return new ApiResponse(
       400,
       null,
@@ -33,7 +33,7 @@ export const getSuggestedRequest = asyncHandler(async (req, res) => {
 
   return new ApiResponse(
     200,
-    {suggestedUsers},
+    { suggestedUsers },
     'Suggested connections fetched successfully.'
   ).send(res);
 });
