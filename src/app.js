@@ -14,10 +14,20 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
+// Multiple allowed origins
+const allowedOrigins = process.env.CLIENT_URLS
+  ? process.env.CLIENT_URLS.split(",")
+  : ["http://localhost:5173"];
+
 // ✅ Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS (Socket)'));
+    },
     credentials: true,
   },
 });
@@ -28,10 +38,24 @@ setupSocket(io);
 // ----------------- EXPRESS MIDDLEWARE -----------------
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS (HTTP)'));
+    },
     credentials: true,
   })
 );
+
+
+// Preflight (OPTIONS)
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
