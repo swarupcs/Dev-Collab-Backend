@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { UsersController } from '../controllers/users.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 
-const router = Router();
+const router: Router = Router();
 const usersController = new UsersController();
 
 // Protected routes

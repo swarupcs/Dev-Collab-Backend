@@ -1,6 +1,6 @@
 import { User, IUser } from '../models/User';
 import { RefreshToken, IRefreshToken } from '../models/RefreshToken';
-import mongoose from 'mongoose';
+
 
 export class AuthRepository {
   async createUser(userData: {

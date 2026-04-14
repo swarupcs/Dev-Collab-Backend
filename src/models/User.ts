@@ -29,7 +29,6 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true,
     },
     password: {
       type: String,
@@ -74,7 +73,6 @@ const UserSchema = new Schema<IUser>(
     skills: {
       type: [String],
       default: [],
-      index: true,
     },
     role: {
       type: String,
@@ -99,7 +97,7 @@ const UserSchema = new Schema<IUser>(
     timestamps: true,
     toJSON: {
       virtuals: true,
-      transform: function (doc, ret) {
+      transform: function (_doc, ret: any) {
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
@@ -109,7 +107,7 @@ const UserSchema = new Schema<IUser>(
     },
     toObject: {
       virtuals: true,
-      transform: function (doc, ret) {
+      transform: function (_doc, ret: any) {
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
@@ -120,7 +118,7 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes
-UserSchema.index({ email: 1 });
+
 UserSchema.index({ skills: 1 });
 UserSchema.index({ createdAt: -1 });
 

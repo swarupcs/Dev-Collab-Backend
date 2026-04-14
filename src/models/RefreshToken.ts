@@ -25,14 +25,13 @@ const RefreshTokenSchema = new Schema<IRefreshToken>(
     expiresAt: {
       type: Date,
       required: true,
-      index: true,
     },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
     toJSON: {
       virtuals: true,
-      transform: function (doc, ret) {
+      transform: function (_doc, ret: any) {
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;

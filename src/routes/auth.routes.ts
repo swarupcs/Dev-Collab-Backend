@@ -8,7 +8,7 @@ import {
   changePasswordValidation,
 } from '../utils/auth.validation';
 
-const router = Router();
+const router: Router = Router();
 const authController = new AuthController();
 
 // Public routes

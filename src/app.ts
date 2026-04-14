@@ -40,7 +40,7 @@ export const createApp = (): Application => {
   app.use(cookieParser());
 
   // Health check
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req, res) => {
     res.status(200).json({
       success: true,
       message: 'Server is healthy',

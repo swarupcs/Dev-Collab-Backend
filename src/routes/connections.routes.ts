@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ConnectionsController } from '../controllers/connections.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 
-const router = Router();
+const router: Router = Router();
 const connectionsController = new ConnectionsController();
 
 // All routes require authentication

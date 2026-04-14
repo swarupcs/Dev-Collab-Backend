@@ -1,9 +1,8 @@
-import { ProjectsRepository } from '../repositories/from '../repositories/projects.repository';
+import { ProjectsRepository } from '../repositories/projects.repository';
 import {
   NotFoundError,
   ForbiddenError,
   ConflictError,
-  BadRequestError,
 } from '../utils/errors';
 
 export class ProjectsService {

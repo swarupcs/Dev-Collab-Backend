@@ -1,4 +1,4 @@
-import { AuthRepository } from '../repositories/from '../repositories/auth.repository';
+import { AuthRepository } from '../repositories/auth.repository';
 import { hashPassword, comparePassword } from '../utils/password';
 import {
   generateAccessToken,
@@ -10,7 +10,7 @@ import {
   UnauthorizedError,
   ConflictError,
 } from '../utils/errors';
-import { IUser } from '../models/User';
+
 
 export class AuthService {
   private authRepository: AuthRepository;

@@ -1,6 +1,6 @@
-import { UsersRepository } from '../repositories/from '../repositories/users.repository';
+import { UsersRepository } from '../repositories/users.repository';
 import { NotFoundError } from '../utils/errors';
-import { IUser } from '../models/User';
+
 
 export class UsersService {
   private usersRepository: UsersRepository;

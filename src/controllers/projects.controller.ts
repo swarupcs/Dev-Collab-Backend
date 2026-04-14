@@ -56,7 +56,7 @@ export class ProjectsController {
   ): Promise<void> => {
     try {
       const project = await this.projectsService.getProjectById(
-        req.params.projectId
+        req.params.projectId as string
       );
       successResponse(res, project);
     } catch (error) {
@@ -71,7 +71,7 @@ export class ProjectsController {
   ): Promise<void> => {
     try {
       const project = await this.projectsService.updateProject(
-        req.params.projectId,
+        req.params.projectId as string,
         req.userId!,
         req.body
       );
@@ -87,7 +87,7 @@ export class ProjectsController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      await this.projectsService.deleteProject(req.params.projectId, req.userId!);
+      await this.projectsService.deleteProject(req.params.projectId as string, req.userId!);
       successResponse(res, null, 'Project deleted successfully');
     } catch (error) {
       next(error);
@@ -101,7 +101,7 @@ export class ProjectsController {
   ): Promise<void> => {
     try {
       const request = await this.projectsService.applyToProject(
-        req.params.projectId,
+        req.params.projectId as string,
         req.userId!,
         req.body
       );
@@ -119,8 +119,8 @@ export class ProjectsController {
     try {
       const { accept } = req.body;
       await this.projectsService.respondToCollaboration(
-        req.params.projectId,
-        req.params.collaborationId,
+        req.params.projectId as string,
+        req.params.collaborationId as string,
         req.userId!,
         accept
       );
@@ -141,7 +141,7 @@ export class ProjectsController {
   ): Promise<void> => {
     try {
       const invitation = await this.projectsService.inviteUser(
-        req.params.projectId,
+        req.params.projectId as string,
         req.userId!,
         req.body
       );
@@ -174,8 +174,8 @@ export class ProjectsController {
     try {
       const { accept } = req.body;
       await this.projectsService.respondToInvitation(
-        req.params.projectId,
-        req.params.invitationId,
+        req.params.projectId as string,
+        req.params.invitationId as string,
         req.userId!,
         accept
       );

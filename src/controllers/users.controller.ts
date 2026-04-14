@@ -45,7 +45,7 @@ export class UsersController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const user = await this.usersService.getUserProfile(req.params.userId);
+      const user = await this.usersService.getUserProfile(req.params.userId as string);
       successResponse(res, user);
     } catch (error) {
       next(error);

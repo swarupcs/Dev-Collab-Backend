@@ -1,4 +1,4 @@
-import { ConnectionsRepository } from '../repositories/from '../repositories/connections.repository';
+import { ConnectionsRepository } from '../repositories/connections.repository';
 import {
   NotFoundError,
   ForbiddenError,

@@ -1,5 +1,5 @@
 import { User, IUser } from '../models/User';
-import mongoose from 'mongoose';
+
 
 export class UsersRepository {
   async findUserById(userId: string): Promise<IUser | null> {

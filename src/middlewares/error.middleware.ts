@@ -4,9 +4,9 @@ import { env } from '../config/env';
 
 export const errorHandler = (
   error: Error | AppError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
   let statusCode = 500;
   let message = 'Internal Server Error';

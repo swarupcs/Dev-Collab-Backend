@@ -18,7 +18,7 @@ export class ConnectionsController {
     try {
       const connection = await this.connectionsService.sendConnectionRequest(
         req.userId!,
-        req.params.userId
+        req.params.userId as string
       );
       successResponse(res, connection, 'Connection request sent', 201);
     } catch (error) {
@@ -33,7 +33,7 @@ export class ConnectionsController {
   ): Promise<void> => {
     try {
       const connection = await this.connectionsService.acceptConnectionRequest(
-        req.params.connectionId,
+        req.params.connectionId as string,
         req.userId!
       );
       successResponse(res, connection, 'Connection request accepted');
@@ -49,7 +49,7 @@ export class ConnectionsController {
   ): Promise<void> => {
     try {
       await this.connectionsService.rejectConnectionRequest(
-        req.params.connectionId,
+        req.params.connectionId as string,
         req.userId!
       );
       successResponse(res, null, 'Connection request rejected');
@@ -95,7 +95,7 @@ export class ConnectionsController {
   ): Promise<void> => {
     try {
       await this.connectionsService.removeConnection(
-        req.params.connectionId,
+        req.params.connectionId as string,
         req.userId!
       );
       successResponse(res, null, 'Connection removed');
