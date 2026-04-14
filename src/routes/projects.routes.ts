@@ -20,6 +20,7 @@ router.delete('/:projectId', projectsController.deleteProject);
 
 // Collaboration requests
 router.post('/:projectId/apply', projectsController.applyToProject);
+router.get('/:projectId/collaborations', projectsController.getCollaborationRequests);
 router.post(
   '/:projectId/collaborations/:collaborationId/respond',
   projectsController.respondToCollaboration

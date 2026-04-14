@@ -137,6 +137,14 @@ export class ProjectsRepository {
     }).populate('user', 'firstName lastName avatarUrl email skills');
   }
 
+  async getUserCollaborationRequests(
+    userId: string
+  ): Promise<ICollaborationRequest[]> {
+    return await CollaborationRequest.find({
+      user: userId,
+    });
+  }
+
   // Project Invitations
   async createInvitation(data: {
     project: string;

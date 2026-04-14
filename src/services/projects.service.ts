@@ -55,6 +55,10 @@ export class ProjectsService {
         filter.owner = query.userId;
       } else if (query.ownership === 'member') {
         filter['members.user'] = query.userId;
+      } else if (query.ownership === 'applied') {
+        const applications = await this.projectsRepository.getUserCollaborationRequests(query.userId);
+        const projectIds = applications.map((app) => app.project);
+        filter._id = { $in: projectIds };
       }
     }
 
@@ -206,6 +210,21 @@ export class ProjectsService {
         'REJECTED'
       );
     }
+  }
+
+  async getCollaborationRequests(projectId: string, userId: string): Promise<any[]> {
+    const project = await this.projectsRepository.findProjectById(projectId);
+
+    if (!project) {
+      throw new NotFoundError('Project not found');
+    }
+
+    if (project.owner.toString() !== userId) {
+      throw new ForbiddenError('Only project owner can view collaboration requests');
+    }
+
+    const requests = await this.projectsRepository.getProjectCollaborationRequests(projectId);
+    return requests.map((req) => req.toJSON());
   }
 
   async inviteUser(

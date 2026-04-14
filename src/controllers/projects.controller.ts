@@ -134,6 +134,22 @@ export class ProjectsController {
     }
   };
 
+  getCollaborationRequests = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const requests = await this.projectsService.getCollaborationRequests(
+        req.params.projectId as string,
+        req.userId!
+      );
+      successResponse(res, requests);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   inviteUser = async (
     req: AuthRequest,
     res: Response,
