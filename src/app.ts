@@ -11,6 +11,8 @@ import authRoutes from './routes/auth.routes';
 import usersRoutes from './routes/users.routes';
 import projectsRoutes from './routes/projects.routes';
 import connectionsRoutes from './routes/connections.routes';
+import discussionRoutes from './routes/discussion.routes';
+import activityRoutes from './routes/activity.routes';
 
 export const createApp = (): Application => {
   const app = express();
@@ -53,6 +55,8 @@ export const createApp = (): Application => {
   app.use('/api/v1/users', usersRoutes);
   app.use('/api/v1/projects', projectsRoutes);
   app.use('/api/v1/connections', connectionsRoutes);
+  app.use('/api/v1/discussion', discussionRoutes);
+  app.use('/api/v1/activity', activityRoutes);
 
   // 404 handler
   app.use(notFound);
