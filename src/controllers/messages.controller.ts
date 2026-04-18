@@ -22,17 +22,20 @@ export class MessagesController {
       const conversationsMap = new Map();
 
       messages.forEach((msg) => {
-        const otherUser =
-          msg.sender.id === currentUserId ? msg.receiver : msg.sender;
+        const senderId = msg.sender.toString();
+        const receiverId = msg.receiver.toString();
+        const isSender = senderId === currentUserId;
+        const otherUser = isSender ? msg.receiver : msg.sender;
+        const otherUserId = otherUser.toString();
 
-        if (!conversationsMap.has(otherUser.id)) {
-          conversationsMap.set(otherUser.id, {
+        if (!conversationsMap.has(otherUserId)) {
+          conversationsMap.set(otherUserId, {
             user: otherUser,
             lastMessage: msg,
-            unreadCount: msg.receiver.id === currentUserId && !msg.read ? 1 : 0,
+            unreadCount: !isSender && !msg.read ? 1 : 0,
           });
-        } else if (msg.receiver.id === currentUserId && !msg.read) {
-          const conv = conversationsMap.get(otherUser.id);
+        } else if (!isSender && !msg.read) {
+          const conv = conversationsMap.get(otherUserId);
           conv.unreadCount += 1;
         }
       });
