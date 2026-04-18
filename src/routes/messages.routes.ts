@@ -7,6 +7,7 @@ const messagesController = new MessagesController();
 
 router.use(authenticate);
 
+router.get('/conversations', messagesController.getConversations);
 router.get('/:userId', messagesController.getMessages);
 router.post('/:userId/read', messagesController.markAsRead);
 
