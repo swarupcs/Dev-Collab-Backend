@@ -1,4 +1,5 @@
-import { User, IUser } from '../models/User';
+import type { IUser } from '../models/User';
+import { User } from '../models/User';
 
 
 export class UsersRepository {

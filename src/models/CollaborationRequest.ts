@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import type { Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 export interface ICollaborationRequest extends Document {
   _id: mongoose.Types.ObjectId;

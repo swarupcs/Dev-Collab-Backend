@@ -1,5 +1,5 @@
-import { Response, NextFunction } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import type { Response, NextFunction } from 'express';
+import type { AuthRequest } from '../middlewares/auth.middleware';
 import { Message } from '../models/Message';
 import { successResponse } from '../utils/response';
 
@@ -23,7 +23,6 @@ export class MessagesController {
 
       messages.forEach((msg) => {
         const senderId = msg.sender.toString();
-        const receiverId = msg.receiver.toString();
         const isSender = senderId === currentUserId;
         const otherUser = isSender ? msg.receiver : msg.sender;
         const otherUserId = otherUser.toString();

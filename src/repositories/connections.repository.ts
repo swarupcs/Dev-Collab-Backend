@@ -1,4 +1,5 @@
-import { Connection, IConnection } from '../models/Connection';
+import type { IConnection } from '../models/Connection';
+import { Connection } from '../models/Connection';
 
 export class ConnectionsRepository {
   async createConnection(

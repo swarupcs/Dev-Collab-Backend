@@ -1,6 +1,9 @@
-import { Project, IProject } from '../models/Project';
-import { CollaborationRequest, ICollaborationRequest } from '../models/CollaborationRequest';
-import { ProjectInvitation, IProjectInvitation } from '../models/ProjectInvitation';
+import type { IProject } from '../models/Project';
+import { Project } from '../models/Project';
+import type { ICollaborationRequest } from '../models/CollaborationRequest';
+import { CollaborationRequest } from '../models/CollaborationRequest';
+import type { IProjectInvitation } from '../models/ProjectInvitation';
+import { ProjectInvitation } from '../models/ProjectInvitation';
 import mongoose from 'mongoose';
 
 export class ProjectsRepository {

@@ -61,4 +61,7 @@ const startServer = async () => {
   }
 };
 
-startServer();
+startServer().catch((error: unknown) => {
+  console.error('Unhandled server startup error:', error);
+  process.exit(1);
+});

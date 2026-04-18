@@ -1,7 +1,7 @@
-import { Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
 import { ConnectionsService } from '../services/connections.service';
 import { successResponse } from '../utils/response';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import type { AuthRequest } from '../middlewares/auth.middleware';
 
 export class ConnectionsController {
   private connectionsService: ConnectionsService;

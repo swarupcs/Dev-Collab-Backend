@@ -1,5 +1,7 @@
-import { User, IUser } from '../models/User';
-import { RefreshToken, IRefreshToken } from '../models/RefreshToken';
+import type { IUser } from '../models/User';
+import { User } from '../models/User';
+import type { IRefreshToken } from '../models/RefreshToken';
+import { RefreshToken } from '../models/RefreshToken';
 
 
 export class AuthRepository {

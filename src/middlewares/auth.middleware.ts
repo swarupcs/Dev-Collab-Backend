@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt';
 import { UnauthorizedError } from '../utils/errors';
 import { User } from '../models/User';
@@ -36,7 +36,7 @@ export const authenticate = async (
       req.userId = decoded.userId;
       
       next();
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedError('Invalid or expired token');
     }
   } catch (error) {

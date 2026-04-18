@@ -1,4 +1,4 @@
-import { Server, Socket } from 'socket.io';
+import type { Server, Socket } from 'socket.io';
 import { verifyAccessToken } from './utils/jwt';
 import { User } from './models/User';
 import { Message } from './models/Message';
@@ -8,22 +8,24 @@ interface CustomSocket extends Socket {
 }
 
 export const initSocket = (io: Server) => {
-  io.use(async (socket: CustomSocket, next) => {
-    const token = socket.handshake.auth.token?.split(' ')[1] || socket.handshake.auth.token;
-    if (!token) {
-      return next(new Error('Authentication error'));
-    }
-    try {
-      const decoded = verifyAccessToken(token);
-      const user = await User.findById(decoded.userId).select('-password');
-      if (!user) {
+  io.use((socket: CustomSocket, next) => {
+    void (async () => {
+      const token = socket.handshake.auth.token?.split(' ')[1] || socket.handshake.auth.token;
+      if (!token) {
         return next(new Error('Authentication error'));
       }
-      socket.user = user;
-      next();
-    } catch (error) {
-      next(new Error('Authentication error'));
-    }
+      try {
+        const decoded = verifyAccessToken(token);
+        const user = await User.findById(decoded.userId).select('-password');
+        if (!user) {
+          return next(new Error('Authentication error'));
+        }
+        socket.user = user;
+        next();
+      } catch (_error) {
+        next(new Error('Authentication error'));
+      }
+    })();
   });
 
   io.on('connection', (socket: CustomSocket) => {

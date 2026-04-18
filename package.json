@@ -5,9 +5,10 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "lint": "eslint src",
+    "lint:check": "eslint src --max-warnings 0",
+    "build": "npm run lint:check && tsc",
     "start": "node dist/server.js",
-    "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
   "keywords": [

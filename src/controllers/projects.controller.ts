@@ -1,7 +1,7 @@
-import { Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
 import { ProjectsService } from '../services/projects.service';
 import { successResponse } from '../utils/response';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import type { AuthRequest } from '../middlewares/auth.middleware';
 
 export class ProjectsController {
   private projectsService: ProjectsService;
