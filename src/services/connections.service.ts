@@ -63,7 +63,8 @@ export class ConnectionsService {
       throw new NotFoundError('Connection request not found');
     }
 
-    if (connection.receiver.toString() !== userId) {
+    const receiverIdStr = (connection.receiver as any)._id?.toString() || connection.receiver.toString();
+    if (receiverIdStr !== userId) {
       throw new ForbiddenError('You can only accept requests sent to you');
     }
 
@@ -91,7 +92,8 @@ export class ConnectionsService {
       throw new NotFoundError('Connection request not found');
     }
 
-    if (connection.receiver.toString() !== userId) {
+    const receiverIdStr = (connection.receiver as any)._id?.toString() || connection.receiver.toString();
+    if (receiverIdStr !== userId) {
       throw new ForbiddenError('You can only reject requests sent to you');
     }
 
@@ -127,10 +129,13 @@ export class ConnectionsService {
       throw new NotFoundError('Connection not found');
     }
 
+    const senderIdStr = (connection.sender as any)._id?.toString() || connection.sender.toString();
+    const receiverIdStr = (connection.receiver as any)._id?.toString() || connection.receiver.toString();
+
     // User must be either sender or receiver
     if (
-      connection.sender.toString() !== userId &&
-      connection.receiver.toString() !== userId
+      senderIdStr !== userId &&
+      receiverIdStr !== userId
     ) {
       throw new ForbiddenError('You can only remove your own connections');
     }
