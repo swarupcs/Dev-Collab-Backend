@@ -24,7 +24,7 @@ export class UsersRepository {
   ): Promise<{ users: IUser[]; total: number }> {
     const filter: any = { visibility: 'PUBLIC' };
 
-    if (query) {
+    if (query && query.trim() !== '') {
       filter.$or = [
         { firstName: { $regex: query, $options: 'i' } },
         { lastName: { $regex: query, $options: 'i' } },

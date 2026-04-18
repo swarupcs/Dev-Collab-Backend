@@ -26,8 +26,8 @@ export class ConnectionsRepository {
 
   async findConnectionById(connectionId: string): Promise<IConnection | null> {
     return await Connection.findById(connectionId)
-      .populate('sender', 'firstName lastName avatarUrl email')
-      .populate('receiver', 'firstName lastName avatarUrl email');
+      .populate('sender', 'firstName lastName avatarUrl email skills bio')
+      .populate('receiver', 'firstName lastName avatarUrl email skills bio');
   }
 
   async updateConnectionStatus(
@@ -39,15 +39,17 @@ export class ConnectionsRepository {
       { status },
       { new: true }
     )
-      .populate('sender', 'firstName lastName avatarUrl email')
-      .populate('receiver', 'firstName lastName avatarUrl email');
+      .populate('sender', 'firstName lastName avatarUrl email skills bio')
+      .populate('receiver', 'firstName lastName avatarUrl email skills bio');
   }
 
   async getPendingRequests(userId: string): Promise<IConnection[]> {
     return await Connection.find({
-      receiver: userId,
+      $or: [{ receiver: userId }, { sender: userId }],
       status: 'PENDING',
-    }).populate('sender', 'firstName lastName avatarUrl email');
+    })
+      .populate('sender', 'firstName lastName avatarUrl email skills bio')
+      .populate('receiver', 'firstName lastName avatarUrl email skills bio');
   }
 
   async getConnections(userId: string): Promise<IConnection[]> {
@@ -57,8 +59,8 @@ export class ConnectionsRepository {
         { receiver: userId, status: 'ACCEPTED' },
       ],
     })
-      .populate('sender', 'firstName lastName avatarUrl email')
-      .populate('receiver', 'firstName lastName avatarUrl email')
+      .populate('sender', 'firstName lastName avatarUrl email skills bio')
+      .populate('receiver', 'firstName lastName avatarUrl email skills bio')
       .sort({ createdAt: -1 });
   }
 
