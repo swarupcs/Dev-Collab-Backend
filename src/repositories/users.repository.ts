@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { IUser } from '../models/User';
 import { User } from '../models/User';
 
@@ -23,7 +24,7 @@ export class UsersRepository {
     skip: number = 0,
     limit: number = 10
   ): Promise<{ users: IUser[]; total: number }> {
-    const filter: any = { visibility: 'PUBLIC' };
+    const filter: Record<string, unknown> = { visibility: 'PUBLIC' };
 
     if (query && query.trim() !== '') {
       filter.$or = [

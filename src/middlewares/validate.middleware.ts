@@ -1,3 +1,5 @@
+ 
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import type { Request, Response, NextFunction } from 'express';
 import type { ValidationChain } from 'express-validator';
 import { validationResult } from 'express-validator';

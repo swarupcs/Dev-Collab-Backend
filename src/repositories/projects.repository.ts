@@ -22,7 +22,7 @@ export class ProjectsRepository {
   }
 
   async findProjects(
-    filter: any,
+    filter: Record<string, unknown>,
     skip: number,
     limit: number
   ): Promise<{ projects: IProject[]; total: number }> {

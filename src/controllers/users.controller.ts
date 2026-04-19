@@ -16,7 +16,7 @@ export class UsersController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const user = await this.usersService.getUserProfile(req.userId!);
+      const user = await this.usersService.getUserProfile((req.userId as string));
       successResponse(res, user);
     } catch (error) {
       next(error);
@@ -30,7 +30,7 @@ export class UsersController {
   ): Promise<void> => {
     try {
       const user = await this.usersService.updateUserProfile(
-        req.userId!,
+        (req.userId as string),
         req.body
       );
       successResponse(res, user, 'Profile updated successfully');

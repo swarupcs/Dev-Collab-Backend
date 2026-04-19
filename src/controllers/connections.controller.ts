@@ -16,9 +16,11 @@ export class ConnectionsController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      if (!req.userId) throw new Error('User ID not found');
+      const targetUserId = String(req.params.userId);
       const connection = await this.connectionsService.sendConnectionRequest(
-        req.userId!,
-        req.params.userId as string
+        req.userId,
+        targetUserId
       );
       successResponse(res, connection, 'Connection request sent', 201);
     } catch (error) {
@@ -32,9 +34,11 @@ export class ConnectionsController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      if (!req.userId) throw new Error('User ID not found');
+      const connectionId = String(req.params.connectionId);
       const connection = await this.connectionsService.acceptConnectionRequest(
-        req.params.connectionId as string,
-        req.userId!
+        connectionId,
+        req.userId
       );
       successResponse(res, connection, 'Connection request accepted');
     } catch (error) {
@@ -48,9 +52,11 @@ export class ConnectionsController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      if (!req.userId) throw new Error('User ID not found');
+      const connectionId = String(req.params.connectionId);
       await this.connectionsService.rejectConnectionRequest(
-        req.params.connectionId as string,
-        req.userId!
+        connectionId,
+        req.userId
       );
       successResponse(res, null, 'Connection request rejected');
     } catch (error) {
@@ -64,8 +70,9 @@ export class ConnectionsController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      if (!req.userId) throw new Error('User ID not found');
       const requests = await this.connectionsService.getPendingRequests(
-        req.userId!
+        req.userId
       );
       successResponse(res, requests);
     } catch (error) {
@@ -79,8 +86,9 @@ export class ConnectionsController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      if (!req.userId) throw new Error('User ID not found');
       const connections = await this.connectionsService.getConnections(
-        req.userId!
+        req.userId
       );
       successResponse(res, connections);
     } catch (error) {
@@ -94,9 +102,11 @@ export class ConnectionsController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      if (!req.userId) throw new Error('User ID not found');
+      const connectionId = String(req.params.connectionId);
       await this.connectionsService.removeConnection(
-        req.params.connectionId as string,
-        req.userId!
+        connectionId,
+        req.userId
       );
       successResponse(res, null, 'Connection removed');
     } catch (error) {

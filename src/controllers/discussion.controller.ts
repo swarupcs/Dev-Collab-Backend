@@ -10,12 +10,13 @@ export class DiscussionController {
   getPosts = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { category, sort = 'recent', limit = 20, page = 1 } = req.query;
-      const query: any = {};
+      const query: Record<string, string> = {};
       if (category && category !== 'All') {
-        query.category = category as string;
+        query.category = String(category);
       }
 
-      let sortObj: any = { createdAt: -1 };
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      let sortObj: Record<string, any> = { createdAt: -1 };
       if (sort === 'popular') {
         sortObj = { 'likes.length': -1, createdAt: -1 };
       }
@@ -28,7 +29,7 @@ export class DiscussionController {
 
       // Add a virtual field for whether the current user liked it
       const enhancedPosts = posts.map(post => {
-        const obj = post.toJSON() as any;
+        const obj = post.toJSON() as unknown as Record<string, unknown>;
         obj.isLiked = req.userId ? post.likes.some(id => id.toString() === req.userId) : false;
         obj.isBookmarked = req.userId ? post.bookmarks.some(id => id.toString() === req.userId) : false;
         obj.likesCount = post.likes.length;
@@ -44,7 +45,7 @@ export class DiscussionController {
 
   createPost = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { title, content, category } = req.body;
+      const { title, content, category } = req.body as Record<string, string>;
       const post = await DiscussionPost.create({
         author: req.userId,
         title,
@@ -72,7 +73,7 @@ export class DiscussionController {
         return;
       }
 
-      const obj = post.toJSON() as any;
+      const obj = post.toJSON() as unknown as Record<string, unknown>;
       obj.isLiked = req.userId ? post.likes.some(id => id.toString() === req.userId) : false;
       obj.isBookmarked = req.userId ? post.bookmarks.some(id => id.toString() === req.userId) : false;
       obj.likesCount = post.likes.length;
@@ -98,7 +99,7 @@ export class DiscussionController {
       if (isLiked) {
         post.likes = post.likes.filter(id => id.toString() !== req.userId);
       } else {
-        post.likes.push(userIdObj as any);
+        post.likes.push(userIdObj as unknown as mongoose.Types.ObjectId);
       }
       
       await post.save();
@@ -122,7 +123,7 @@ export class DiscussionController {
       if (isBookmarked) {
         post.bookmarks = post.bookmarks.filter(id => id.toString() !== req.userId);
       } else {
-        post.bookmarks.push(userIdObj as any);
+        post.bookmarks.push(userIdObj as unknown as mongoose.Types.ObjectId);
       }
       
       await post.save();
@@ -139,10 +140,11 @@ export class DiscussionController {
         .populate('author', 'firstName lastName avatarUrl headline');
 
       const enhancedComments = comments.map(comment => {
-        const obj = comment.toJSON() as any;
-        obj.isLiked = req.userId ? comment.likes.some(id => id.toString() === req.userId) : false;
-        obj.likesCount = comment.likes.length;
-        return obj;
+        return {
+          ...comment.toJSON(),
+          isLiked: req.userId ? comment.likes.some(id => id.toString() === req.userId) : false,
+          likesCount: comment.likes.length
+        };
       });
 
       successResponse(res, enhancedComments);
@@ -153,10 +155,10 @@ export class DiscussionController {
 
   createComment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { content, parentComment } = req.body;
+      const { content, parentComment } = req.body as { content: string; parentComment?: string };
       const postId = req.params.id as string;
 
-      const commentData: any = {
+      const commentData: Record<string, unknown> = {
         post: postId,
         author: req.userId,
         parentComment: parentComment || null,

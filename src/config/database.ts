@@ -11,7 +11,7 @@ export const connectDatabase = async (): Promise<void> => {
 
     await mongoose.connect(env.MONGODB_URI, options);
 
-    console.log('✅ MongoDB connected successfully');
+    console.info('✅ MongoDB connected successfully');
 
     // Handle connection events
     mongoose.connection.on('error', (error) => {
@@ -26,7 +26,7 @@ export const connectDatabase = async (): Promise<void> => {
     process.on('SIGINT', () => {
       void (async () => {
         await mongoose.connection.close();
-        console.log('MongoDB connection closed through app termination');
+        console.info('MongoDB connection closed through app termination');
         process.exit(0);
       })();
     });

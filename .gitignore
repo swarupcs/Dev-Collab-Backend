@@ -45,3 +45,6 @@ coverage/
 tmp/
 temp/
 .env.prod
+fix_eslint.js
+final_fix.js
+test-type.ts

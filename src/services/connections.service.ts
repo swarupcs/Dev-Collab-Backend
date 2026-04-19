@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ConnectionsRepository } from '../repositories/connections.repository';
 import {
   NotFoundError,
@@ -16,7 +18,7 @@ export class ConnectionsService {
   async sendConnectionRequest(
     senderId: string,
     receiverId: string
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     if (senderId === receiverId) {
       throw new BadRequestError('You cannot connect with yourself');
     }
@@ -48,13 +50,17 @@ export class ConnectionsService {
       connection._id.toString()
     );
 
-    return populated!.toJSON();
+    if (!populated) {
+      throw new NotFoundError('Connection not found after creation');
+    }
+
+    return populated.toJSON() as Record<string, unknown>;
   }
 
   async acceptConnectionRequest(
     connectionId: string,
     userId: string
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     const connection = await this.connectionsRepository.findConnectionById(
       connectionId
     );
@@ -63,7 +69,10 @@ export class ConnectionsService {
       throw new NotFoundError('Connection request not found');
     }
 
-    const receiverIdStr = (connection.receiver as any)._id?.toString() || connection.receiver.toString();
+    const receiverIdStr = connection.receiver && typeof connection.receiver === 'object' && '_id' in connection.receiver
+      ? String((connection.receiver as any)._id)
+      : String(connection.receiver);
+
     if (receiverIdStr !== userId) {
       throw new ForbiddenError('You can only accept requests sent to you');
     }
@@ -77,7 +86,11 @@ export class ConnectionsService {
       'ACCEPTED'
     );
 
-    return updated!.toJSON();
+    if (!updated) {
+      throw new NotFoundError('Connection not found after update');
+    }
+
+    return updated.toJSON() as Record<string, unknown>;
   }
 
   async rejectConnectionRequest(
@@ -92,7 +105,10 @@ export class ConnectionsService {
       throw new NotFoundError('Connection request not found');
     }
 
-    const receiverIdStr = (connection.receiver as any)._id?.toString() || connection.receiver.toString();
+    const receiverIdStr = connection.receiver && typeof connection.receiver === 'object' && '_id' in connection.receiver
+      ? String((connection.receiver as any)._id)
+      : String(connection.receiver);
+
     if (receiverIdStr !== userId) {
       throw new ForbiddenError('You can only reject requests sent to you');
     }
@@ -107,14 +123,14 @@ export class ConnectionsService {
     );
   }
 
-  async getPendingRequests(userId: string): Promise<any[]> {
+  async getPendingRequests(userId: string): Promise<Record<string, unknown>[]> {
     const requests = await this.connectionsRepository.getPendingRequests(userId);
-    return requests.map((r) => r.toJSON());
+    return requests.map((r) => r.toJSON() as Record<string, unknown>);
   }
 
-  async getConnections(userId: string): Promise<any[]> {
+  async getConnections(userId: string): Promise<Record<string, unknown>[]> {
     const connections = await this.connectionsRepository.getConnections(userId);
-    return connections.map((c) => c.toJSON());
+    return connections.map((c) => c.toJSON() as Record<string, unknown>);
   }
 
   async removeConnection(
@@ -129,8 +145,12 @@ export class ConnectionsService {
       throw new NotFoundError('Connection not found');
     }
 
-    const senderIdStr = (connection.sender as any)._id?.toString() || connection.sender.toString();
-    const receiverIdStr = (connection.receiver as any)._id?.toString() || connection.receiver.toString();
+    const senderIdStr = connection.sender && typeof connection.sender === 'object' && '_id' in connection.sender
+      ? String((connection.sender as any)._id)
+      : String(connection.sender);
+    const receiverIdStr = connection.receiver && typeof connection.receiver === 'object' && '_id' in connection.receiver
+      ? String((connection.receiver as any)._id)
+      : String(connection.receiver);
 
     // User must be either sender or receiver
     if (

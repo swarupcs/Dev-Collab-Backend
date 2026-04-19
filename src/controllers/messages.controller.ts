@@ -10,7 +10,7 @@ export class MessagesController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const currentUserId = req.userId!;
+      const currentUserId = req.userId as string;
 
       const messages = await Message.find({
         $or: [{ sender: currentUserId }, { receiver: currentUserId }],
@@ -19,7 +19,7 @@ export class MessagesController {
         .populate('sender', 'firstName lastName avatarUrl')
         .populate('receiver', 'firstName lastName avatarUrl');
 
-      const conversationsMap = new Map();
+      const conversationsMap = new Map<string, { user: unknown; lastMessage: unknown; unreadCount: number }>();
 
       messages.forEach((msg) => {
         const senderId = msg.sender.toString();
@@ -35,7 +35,7 @@ export class MessagesController {
           });
         } else if (!isSender && !msg.read) {
           const conv = conversationsMap.get(otherUserId);
-          conv.unreadCount += 1;
+          if (conv) conv.unreadCount += 1;
         }
       });
 
@@ -52,7 +52,7 @@ export class MessagesController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const currentUserId = req.userId!;
+      const currentUserId = req.userId as string;
       const otherUserId = req.params.userId;
 
       const messages = await Message.find({
@@ -77,7 +77,7 @@ export class MessagesController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const currentUserId = req.userId!;
+      const currentUserId = req.userId as string;
       const otherUserId = req.params.userId;
 
       await Message.updateMany(

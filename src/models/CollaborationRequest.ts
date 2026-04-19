@@ -45,8 +45,8 @@ const CollaborationRequestSchema = new Schema<ICollaborationRequest>(
     timestamps: true,
     toJSON: {
       virtuals: true,
-      transform: function (_doc, ret: any) {
-        ret.id = ret._id.toString();
+      transform: function (_doc, ret: Record<string, unknown>) {
+        ret.id = String(ret._id);
         delete ret._id;
         delete ret.__v;
         return ret;

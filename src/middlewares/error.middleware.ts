@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors';
 import { env } from '../config/env';

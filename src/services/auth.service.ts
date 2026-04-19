@@ -11,7 +11,6 @@ import {
   ConflictError,
 } from '../utils/errors';
 
-
 export class AuthService {
   private authRepository: AuthRepository;
 
@@ -24,7 +23,7 @@ export class AuthService {
     password: string;
     firstName: string;
     lastName: string;
-  }): Promise<{ user: any; accessToken: string; refreshToken: string }> {
+  }): Promise<{ user: Record<string, unknown>; accessToken: string; refreshToken: string }> {
     // Check if user exists
     const existingUser = await this.authRepository.findUserByEmail(data.email);
     if (existingUser) {
@@ -61,7 +60,7 @@ export class AuthService {
     );
 
     // Remove password from response
-    const userResponse = user.toJSON();
+    const userResponse = user.toJSON() as Record<string, unknown>;
 
     return { user: userResponse, accessToken, refreshToken };
   }
@@ -69,7 +68,7 @@ export class AuthService {
   async login(
     email: string,
     password: string
-  ): Promise<{ user: any; accessToken: string; refreshToken: string }> {
+  ): Promise<{ user: Record<string, unknown>; accessToken: string; refreshToken: string }> {
     // Find user
     const user = await this.authRepository.findUserByEmail(email);
     if (!user) {
@@ -103,7 +102,7 @@ export class AuthService {
     );
 
     // Remove password from response
-    const userResponse = user.toJSON();
+    const userResponse = user.toJSON() as Record<string, unknown>;
 
     return { user: userResponse, accessToken, refreshToken };
   }
@@ -142,12 +141,12 @@ export class AuthService {
     await this.authRepository.deleteAllUserRefreshTokens(userId);
   }
 
-  async getCurrentUser(userId: string): Promise<any> {
+  async getCurrentUser(userId: string): Promise<Record<string, unknown>> {
     const user = await this.authRepository.findUserById(userId);
     if (!user) {
       throw new UnauthorizedError('User not found');
     }
-    return user.toJSON();
+    return user.toJSON() as Record<string, unknown>;
   }
 
   async changePassword(
@@ -155,10 +154,12 @@ export class AuthService {
     oldPassword: string,
     newPassword: string
   ): Promise<void> {
-    const user = await this.authRepository.findUserByEmail(
-      (await this.authRepository.findUserById(userId))!.email
-    );
-    
+    const userToFind = await this.authRepository.findUserById(userId);
+    if (!userToFind?.email) {
+      throw new UnauthorizedError('User not found');
+    }
+    const user = await this.authRepository.findUserByEmail(userToFind.email);
+
     if (!user) {
       throw new UnauthorizedError('User not found');
     }

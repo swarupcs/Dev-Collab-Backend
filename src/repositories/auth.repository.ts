@@ -17,7 +17,7 @@ export class AuthRepository {
 
   async findUserByEmail(email: string): Promise<IUser | null> {
     const formattedEmail = email.toLowerCase().trim();
-    return await User.findOne({ email: formattedEmail }).select('+password');
+    return await User.findOne({ email: formattedEmail }).select('+password') as IUser | null;
   }
 
   async findUserById(userId: string): Promise<IUser | null> {

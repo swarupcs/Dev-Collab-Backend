@@ -16,7 +16,7 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { email, password, firstName, lastName } = req.body;
+      const { email, password, firstName, lastName } = req.body as Record<string, string>;
 
       const result = await this.authService.register({
         email,
@@ -53,7 +53,7 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { email, password } = req.body;
+      const { email, password } = req.body as Record<string, string>;
 
       const result = await this.authService.login(email, password);
 
@@ -80,7 +80,7 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      const refreshToken = req.cookies.refreshToken as string | undefined;
 
       if (!refreshToken) {
         return next(new Error('No refresh token provided'));
@@ -100,7 +100,7 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      const refreshToken = req.cookies.refreshToken as string | undefined;
 
       if (refreshToken) {
         await this.authService.logout(refreshToken);
@@ -120,7 +120,10 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      await this.authService.logoutAll(req.userId!);
+      if (!req.userId) {
+        throw new Error('User ID not found');
+      }
+      await this.authService.logoutAll(req.userId);
 
       res.clearCookie('refreshToken');
 
@@ -136,7 +139,10 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const user = await this.authService.getCurrentUser(req.userId!);
+      if (!req.userId) {
+        throw new Error('User ID not found');
+      }
+      const user = await this.authService.getCurrentUser(req.userId);
 
       successResponse(res, user);
     } catch (error) {
@@ -150,10 +156,13 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { oldPassword, newPassword } = req.body;
+      const { oldPassword, newPassword } = req.body as Record<string, string>;
 
+      if (!req.userId) {
+        throw new Error('User ID not found');
+      }
       await this.authService.changePassword(
-        req.userId!,
+        req.userId,
         oldPassword,
         newPassword
       );

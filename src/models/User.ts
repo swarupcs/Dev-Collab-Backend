@@ -98,8 +98,8 @@ const UserSchema = new Schema<IUser>(
     timestamps: true,
     toJSON: {
       virtuals: true,
-      transform: function (_doc, ret: any) {
-        ret.id = ret._id.toString();
+      transform: function (_doc, ret: Record<string, unknown>) {
+        ret.id = String(ret._id);
         delete ret._id;
         delete ret.__v;
         delete ret.password;
@@ -108,8 +108,8 @@ const UserSchema = new Schema<IUser>(
     },
     toObject: {
       virtuals: true,
-      transform: function (_doc, ret: any) {
-        ret.id = ret._id.toString();
+      transform: function (_doc, ret: Record<string, unknown>) {
+        ret.id = String(ret._id);
         delete ret._id;
         delete ret.__v;
         return ret;

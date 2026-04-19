@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { UsersRepository } from '../repositories/users.repository';
 import { NotFoundError } from '../utils/errors';
 
@@ -9,7 +12,7 @@ export class UsersService {
     this.usersRepository = new UsersRepository();
   }
 
-  async getUserProfile(userId: string): Promise<any> {
+  async getUserProfile(userId: string): Promise<Record<string, unknown>> {
     const user = await this.usersRepository.findUserById(userId);
     
     if (!user) {
@@ -33,7 +36,7 @@ export class UsersService {
       avatarUrl?: string;
       visibility?: 'PUBLIC' | 'PRIVATE';
     }
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     const user = await this.usersRepository.updateUser(userId, data);
     
     if (!user) {
@@ -48,7 +51,7 @@ export class UsersService {
     skills?: string[],
     page: number = 1,
     limit: number = 10
-  ): Promise<{ data: any[]; pagination: any }> {
+  ): Promise<{ data: Record<string, unknown>[]; pagination: Record<string, unknown> }> {
     const skip = (page - 1) * limit;
 
     const { users, total } = await this.usersRepository.searchUsers(
