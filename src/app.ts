@@ -19,6 +19,9 @@ import messagesRoutes from './routes/messages.routes';
 export const createApp = (): Application => {
   const app = express();
 
+  // Trust proxy for rate limiting behind Nginx/AWS
+  app.set('trust proxy', 1);
+
   // Security middleware
   app.use(helmet());
 
